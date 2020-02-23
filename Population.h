@@ -95,7 +95,7 @@ void Population::setFitness(unsigned i, double f) {
 }
 
 void Population::sortFitness() {
-	sort(fitness.begin(), fitness.end());
+	sort(fitness.begin(), fitness.end(), std::greater<>());
 }
 
 //double Population::operator()(unsigned chromosome, unsigned allele) const {

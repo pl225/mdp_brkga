@@ -190,7 +190,7 @@ template< class Decoder, class RNG >
 double BRKGA< Decoder, RNG >::getBestFitness() const {
 	double best = current[0]->fitness[0].first;
 	for(unsigned i = 1; i < K; ++i) {
-		if(current[i]->fitness[0].first < best) { best = current[i]->fitness[0].first; }
+		if(current[i]->fitness[0].first > best) { best = current[i]->fitness[0].first; }
 	}
 
 	return best;
@@ -200,7 +200,7 @@ template< class Decoder, class RNG >
 const std::vector< double >& BRKGA< Decoder, RNG >::getBestChromosome() const {
 	unsigned bestK = 0;
 	for(unsigned i = 1; i < K; ++i) {
-		if( current[i]->getBestFitness() < current[bestK]->getBestFitness() ) { bestK = i; }
+		if( current[i]->getBestFitness() > current[bestK]->getBestFitness() ) { bestK = i; }
 	}
 
 	return current[bestK]->getChromosome(0);	// The top one :-)
