@@ -8,15 +8,17 @@
 #include "SampleDecoder.h"
 #include <fstream>
 #include <iostream>
+#include <numeric>
+#include <math.h>
 
 SampleDecoder::SampleDecoder(string caminho) {
 	ifstream instancia(caminho);
 
 	instancia >> this->n >> this->m;
 
-	this->distancias = new float *[this->n];
+	this->distancias = vector<vector<float>>(this->n);
 	for (int i = 0; i < this->n; i++) {
-		this->distancias[i] = new float[this->n];
+		this->distancias[i] = vector<float>(this->n);
 	}
 
 	int i, j;
@@ -24,29 +26,31 @@ SampleDecoder::SampleDecoder(string caminho) {
 
 	while (instancia >> i >> j >> distancia) {
 		this->distancias[i][j] = this->distancias[j][i] = distancia;
-
-		cout << distancias[i][j] << ' ' << distancias[j][i] << endl;
 	}
 }
 
 // Runs in \Theta(n \log n):
 double SampleDecoder::decode(const std::vector< double >& chromosome) const {
-	std::vector< std::pair< double, unsigned > > ranking(chromosome.size());
+
+	vector<int> total(this->getN()); // alocando vetor com n elementos
+	iota(total.begin(), total.end(), 0); // preenchendo vetor de 0 a n - 1
+
+	vector<int> selecionados; // criando vetor para os m selecionados
 
 	for(unsigned i = 0; i < chromosome.size(); ++i) {
-		ranking[i] = std::pair< double, unsigned >(chromosome[i], i);
+		int pos = floor(total.size() * chromosome[i]);
+		selecionados.push_back(total[pos]);
+
+		total.erase(total.begin() + pos);
 	}
 
-	// Here we sort 'permutation', which will then produce a permutation of [n] in pair::second:
-	std::sort(ranking.begin(), ranking.end());
+	float fitness = 0;
 
-	// permutation[i].second is in {0, ..., n - 1}; a permutation can be obtained as follows
-	std::list< unsigned > permutation;
-	for(std::vector< std::pair< double, unsigned > >::const_iterator i = ranking.begin();
-			i != ranking.end(); ++i) {
-		permutation.push_back(i->second);
+	for (int i = 0; i < selecionados.size(); i++) {
+		for (int j = i + 1; j < selecionados.size(); j++) {
+			fitness += this->distancias[selecionados[i]][selecionados[j]];
+		}
 	}
 
-	// sample fitness is the first allele
-	return chromosome.front();
+	return fitness;
 }

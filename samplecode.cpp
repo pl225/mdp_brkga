@@ -4,17 +4,15 @@
 #include "BRKGA.h"
 
 int main(int argc, char* argv[]) {
-	const unsigned n = 100;		// size of chromosomes
-	const unsigned p = 1000;	// size of population
+	
+	SampleDecoder decoder("instances/GKD-c/GKD-c_1_n500_m50.txt"); // initialize the decoder
+	const unsigned n = decoder.getM();		// size of chromosomes
+	const unsigned p = 10000;	// size of population
 	const double pe = 0.20;		// fraction of population to be the elite-set
 	const double pm = 0.10;		// fraction of population to be replaced by mutants
 	const double rhoe = 0.70;	// probability that offspring inherit an allele from elite parent
 	const unsigned K = 3;		// number of independent populations
-	const unsigned MAXT = 2;	// number of threads for parallel decoding
-	
-	SampleDecoder decoder("instances/GKD-a/GKD-a_1_n10_m2.txt");			// initialize the decoder
-
-	exit(0);
+	const unsigned MAXT = 4;	// number of threads for parallel decoding
 	
 	const long unsigned rngSeed = 0;	// seed to the random number generator
 	MTRand rng(rngSeed);				// initialize the random number generator
@@ -25,7 +23,7 @@ int main(int argc, char* argv[]) {
 	unsigned generation = 0;		// current generation
 	const unsigned X_INTVL = 100;	// exchange best individuals at every 100 generations
 	const unsigned X_NUMBER = 2;	// exchange top 2 best
-	const unsigned MAX_GENS = 1000;	// run for 1000 gens
+	const unsigned MAX_GENS = 10000;	// run for 1000 gens
 	do {
 		algorithm.evolve();	// evolve the population for one generation
 		

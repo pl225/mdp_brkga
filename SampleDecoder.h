@@ -38,10 +38,14 @@ public:
 		return n;
 	}
 
+	float getDistancia(int i, int j) const {
+		return this->distancias[i][j];
+	}
+
 private:
 	int n;
 	int m;
-	float **distancias;
+	vector<vector<float>> distancias;
 };
 
 #endif
