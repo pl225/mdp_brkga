@@ -6,25 +6,11 @@
 #include "MTRand.h"
 #include "BRKGA.h"
 
+std::vector<string> lerInstancias();
+
 int main(int argc, char* argv[]) {
 
-	string path = "instances";
-	DIR *dir = opendir(path.c_str());
-	struct dirent *entry;
-	struct stat filestat;
-	std::vector<string> instancias;
-
-	if (dir == NULL) {
-		cout << "Erro ao abrir diretório de instâncias: " << path << endl;
-		exit(1);
-	} else {
-		while ((entry = readdir(dir)) != NULL) {
-			stat(entry->d_name, &filestat);
-			if (!S_ISDIR(filestat.st_mode)) {
-				instancias.push_back(path + '/' + entry->d_name);
-			}
-		}
-	}
+	std::vector<string> instancias = lerInstancias();
 	
 	const unsigned p = 1000;	// size of population
 	const double pe = 0.20;		// fraction of population to be the elite-set
@@ -49,14 +35,7 @@ int main(int argc, char* argv[]) {
 		// initialize the BRKGA-based heuristic
 		BRKGA< SampleDecoder, MTRand > algorithm(n, p, pe, pm, rhoe, decoder, rng, K, MAXT);
 		
-		unsigned generation = 0;		// current generation
-		do {
-			algorithm.evolve();	// evolve the population for one generation
-			
-			if((++generation) % X_INTVL == 0) {
-				algorithm.exchangeElite(X_NUMBER);	// exchange top individuals
-			}
-		} while (generation < MAX_GENS);
+		algorithm.execute(X_INTVL, X_NUMBER, MAX_GENS);
 		
 		std::cout << "Best solution found has objective value = "
 				<< algorithm.getBestFitness() << std::endl;
@@ -65,4 +44,26 @@ int main(int argc, char* argv[]) {
 	}
 	
 	return 0;
+}
+
+std::vector<string> lerInstancias () {
+	string path = "instances";
+	DIR *dir = opendir(path.c_str());
+	struct dirent *entry;
+	struct stat filestat;
+	std::vector<string> instancias;
+
+	if (dir == NULL) {
+		cout << "Erro ao abrir diretório de instâncias: " << path << endl;
+		exit(1);
+	} else {
+		while ((entry = readdir(dir)) != NULL) {
+			stat(entry->d_name, &filestat);
+			if (!S_ISDIR(filestat.st_mode)) {
+				instancias.push_back(path + '/' + entry->d_name);
+			}
+		}
+	}
+
+	return instancias;
 }

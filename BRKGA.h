@@ -110,6 +110,8 @@ public:
 	 */
 	double getBestFitness() const;
 
+	void execute(const unsigned interval_exchange, const unsigned n_individuals_exchange, const unsigned max_gens);	// run for 1000 gens);
+
 	// Return copies to the internal parameters:
 	unsigned getN() const;
 	unsigned getP() const;
@@ -345,5 +347,17 @@ unsigned BRKGA<Decoder, RNG>::getK() const { return K; }
 
 template< class Decoder, class RNG >
 unsigned BRKGA<Decoder, RNG>::getMAX_THREADS() const { return MAX_THREADS; }
+
+template< class Decoder, class RNG >
+void BRKGA<Decoder, RNG>::execute(const unsigned interval_exchange, const unsigned n_individuals_exchange, const unsigned max_gens) {
+	unsigned generation = 0;		// current generation
+	do {
+		this->evolve();	// evolve the population for one generation
+		
+		if((++generation) % interval_exchange == 0) {
+			this->exchangeElite(n_individuals_exchange);	// exchange top individuals
+		}
+	} while (generation < max_gens);
+}
 
 #endif
