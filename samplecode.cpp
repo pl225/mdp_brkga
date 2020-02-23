@@ -2,19 +2,20 @@
 #include "SampleDecoder.h"
 #include "MTRand.h"
 #include "BRKGA.h"
+#include <time.h>
 
 int main(int argc, char* argv[]) {
 	
-	SampleDecoder decoder("instances/GKD-c/GKD-c_1_n500_m50.txt"); // initialize the decoder
+	SampleDecoder decoder("instances/MDG-c/MDG-c_1_n3000_m300.txt"); // initialize the decoder
 	const unsigned n = decoder.getM();		// size of chromosomes
-	const unsigned p = 10000;	// size of population
+	const unsigned p = 1000;	// size of population
 	const double pe = 0.20;		// fraction of population to be the elite-set
 	const double pm = 0.10;		// fraction of population to be replaced by mutants
 	const double rhoe = 0.70;	// probability that offspring inherit an allele from elite parent
-	const unsigned K = 3;		// number of independent populations
+	const unsigned K = 5;		// number of independent populations
 	const unsigned MAXT = 4;	// number of threads for parallel decoding
 	
-	const long unsigned rngSeed = 0;	// seed to the random number generator
+	const long unsigned rngSeed = time(NULL);	// seed to the random number generator
 	MTRand rng(rngSeed);				// initialize the random number generator
 	
 	// initialize the BRKGA-based heuristic
@@ -23,7 +24,7 @@ int main(int argc, char* argv[]) {
 	unsigned generation = 0;		// current generation
 	const unsigned X_INTVL = 100;	// exchange best individuals at every 100 generations
 	const unsigned X_NUMBER = 2;	// exchange top 2 best
-	const unsigned MAX_GENS = 10000;	// run for 1000 gens
+	const unsigned MAX_GENS = 1000;	// run for 1000 gens
 	do {
 		algorithm.evolve();	// evolve the population for one generation
 		
