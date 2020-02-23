@@ -2,6 +2,8 @@
 #include <dirent.h>
 #include <time.h>
 #include <sys/stat.h>
+#include <chrono>
+#include <fstream>
 #include "SampleDecoder.h"
 #include "MTRand.h"
 #include "BRKGA.h"
@@ -21,10 +23,13 @@ int main(int argc, char* argv[]) {
 	const unsigned X_INTVL = 100;	// exchange best individuals at every 100 generations
 	const unsigned X_NUMBER = 2;	// exchange top 2 best
 	const unsigned MAX_GENS = 1000;	// run for 1000 gens
+	const unsigned N_EXC = 5;
 	
 	const long unsigned rngSeed = time(NULL);	// seed to the random number generator
 	MTRand rng(rngSeed);				// initialize the random number generator
 
+	ofstream resultados ("resultados.txt");
+	
 	for (const string instancia: instancias) {
 
 		cout << "Executando instância: " << instancia << endl;
@@ -34,14 +39,32 @@ int main(int argc, char* argv[]) {
 		
 		// initialize the BRKGA-based heuristic
 		BRKGA< SampleDecoder, MTRand > algorithm(n, p, pe, pm, rhoe, decoder, rng, K, MAXT);
-		
-		algorithm.execute(X_INTVL, X_NUMBER, MAX_GENS);
-		
-		std::cout << "Best solution found has objective value = "
-				<< algorithm.getBestFitness() << std::endl;
 
-		exit(0);
+		double best = 0, time = 0, avg_cost = 0;
+
+		resultados << "#######\t" << instancia << "#######\t" << endl;
+
+		for (int i = 0; i < N_EXC; i++) {
+			
+			chrono::steady_clock::time_point start = chrono::steady_clock::now();
+			algorithm.execute(X_INTVL, X_NUMBER, MAX_GENS);
+			chrono::steady_clock::time_point end = chrono::steady_clock::now();
+
+			auto elapsed_time = chrono::duration_cast<chrono::milliseconds>(end - start).count();
+			time += elapsed_time;
+			double best_i = algorithm.getBestFitness();
+			avg_cost += best_i;
+			if (best_i > best) {
+				best = best_i;
+			}
+			resultados << '\t' << best_i << '\t' << elapsed_time << endl;
+			algorithm.reset();
+		}
+
+		resultados << "#######\t" << best << '\t' << avg_cost / N_EXC << '\t' << time / N_EXC << "#######\t" << endl;
 	}
+
+	resultados.close();
 	
 	return 0;
 }
