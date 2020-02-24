@@ -1,7 +1,6 @@
 #include <iostream>
 #include <dirent.h>
 #include <time.h>
-#include <sys/stat.h>
 #include <chrono>
 #include <fstream>
 #include "SampleDecoder.h"
@@ -28,7 +27,7 @@ int main(int argc, char* argv[]) {
 	const long unsigned rngSeed = time(NULL);	// seed to the random number generator
 	MTRand rng(rngSeed);				// initialize the random number generator
 
-	ofstream resultados ("resultados.txt");
+	ofstream resultados ("resultados_500.txt", ios::out | ios::app);
 	
 	for (const string instancia: instancias) {
 
@@ -70,10 +69,9 @@ int main(int argc, char* argv[]) {
 }
 
 std::vector<string> lerInstancias () {
-	string path = "instances";
+	string path = "instances_2000";
 	DIR *dir = opendir(path.c_str());
 	struct dirent *entry;
-	struct stat filestat;
 	std::vector<string> instancias;
 
 	if (dir == NULL) {
@@ -81,8 +79,8 @@ std::vector<string> lerInstancias () {
 		exit(1);
 	} else {
 		while ((entry = readdir(dir)) != NULL) {
-			stat(entry->d_name, &filestat);
-			if (!S_ISDIR(filestat.st_mode)) {
+			string filename = entry->d_name;
+			if (filename.size() > 2) {
 				instancias.push_back(path + '/' + entry->d_name);
 			}
 		}
