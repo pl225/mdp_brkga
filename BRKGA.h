@@ -48,6 +48,7 @@
 #include <algorithm>
 #include <exception>
 #include <stdexcept>
+#include <chrono>
 #include "Population.h"
 
 template< class Decoder, class RNG >
@@ -110,7 +111,7 @@ public:
 	 */
 	double getBestFitness() const;
 
-	void execute(const unsigned interval_exchange, const unsigned n_individuals_exchange, const unsigned max_gens);	// run for 1000 gens);
+	int64_t execute(const unsigned interval_exchange, const unsigned n_individuals_exchange);	// run for 1000 gens);
 
 	// Return copies to the internal parameters:
 	unsigned getN() const;
@@ -349,15 +350,25 @@ template< class Decoder, class RNG >
 unsigned BRKGA<Decoder, RNG>::getMAX_THREADS() const { return MAX_THREADS; }
 
 template< class Decoder, class RNG >
-void BRKGA<Decoder, RNG>::execute(const unsigned interval_exchange, const unsigned n_individuals_exchange, const unsigned max_gens) {
-	unsigned generation = 0;		// current generation
+int64_t BRKGA<Decoder, RNG>::execute(const unsigned interval_exchange, const unsigned n_individuals_exchange) {
+	
+	int64_t tempoAchado = -1;		// current generation
+	auto start = chrono::steady_clock::now();
+	unsigned generation = 0;
+
 	do {
 		this->evolve();	// evolve the population for one generation
+
+		if (tempoAchado == -1 && this->getBestFitness() >= this->refDecoder.getCusto()) {
+			tempoAchado = chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - start).count();
+		}
 		
 		if((++generation) % interval_exchange == 0) {
 			this->exchangeElite(n_individuals_exchange);	// exchange top individuals
 		}
-	} while (generation < max_gens);
+	} while (chrono::duration_cast<chrono::seconds>(chrono::steady_clock::now() - start).count() < 60);
+
+	return tempoAchado;
 }
 
 #endif
