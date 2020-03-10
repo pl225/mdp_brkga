@@ -35,11 +35,12 @@ double SampleDecoder::decode(const std::vector< double >& chromosome) const {
 	vector<int> total(this->getN()); // alocando vetor com n elementos
 	iota(total.begin(), total.end(), 0); // preenchendo vetor de 0 a n - 1
 
-	vector<int> selecionados; // criando vetor para os m selecionados
+	vector<pair<int, int>> selecionados; // criando vetor para os m selecionados: <pos, elemento>
+
 
 	for(unsigned i = 0; i < chromosome.size(); ++i) {
 		int pos = floor(total.size() * chromosome[i]);
-		selecionados.push_back(total[pos]);
+		selecionados.push_back(make_pair(pos, total[pos]));
 
 		total.erase(total.begin() + pos);
 	}
@@ -48,7 +49,7 @@ double SampleDecoder::decode(const std::vector< double >& chromosome) const {
 
 	for (int i = 0; i < selecionados.size(); i++) {
 		for (int j = i + 1; j < selecionados.size(); j++) {
-			fitness += this->distancias[selecionados[i]][selecionados[j]];
+			fitness += this->distancias[selecionados[i].second][selecionados[j].second];
 		}
 	}
 
