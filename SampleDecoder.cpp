@@ -45,13 +45,25 @@ double SampleDecoder::decode(const std::vector< double >& chromosome) const {
 		total.erase(total.begin() + pos);
 	}
 
-	float fitness = 0;
+	float fitness = 0, 
+		menorDiversidade = numeric_limits<float>::max(), 
+		diversidadeAtual = 0,
+		dist;
+	int posElementoMenosDiverso = -1;
 
 	for (int i = 0; i < selecionados.size(); i++) {
-		for (int j = i + 1; j < selecionados.size(); j++) {
-			fitness += this->distancias[selecionados[i].second][selecionados[j].second];
+		for (int j = 0; j < selecionados.size(); j++) {
+			dist = this->distancias[selecionados[i].second][selecionados[j].second];
+			fitness += dist;
+			diversidadeAtual += dist;
 		}
+		if (diversidadeAtual < menorDiversidade) {
+			menorDiversidade = diversidadeAtual;
+			posElementoMenosDiverso = i;
+		}
+		diversidadeAtual = 0;
 	}
+	fitness /= 2;
 
 	return fitness;
 }
