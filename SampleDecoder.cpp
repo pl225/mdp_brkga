@@ -38,11 +38,11 @@ double SampleDecoder::decode(const std::vector< double >& chromosome) const {
 	vector<pair<int, int>> selecionados; // criando vetor para os m selecionados: <pos, elemento>
 
 
-	for(unsigned i = 0; i < chromosome.size(); ++i) {
-		int pos = floor(total.size() * chromosome[i]);
-		selecionados.push_back(make_pair(pos, total[pos]));
+	for(unsigned i = 0; i < chromosome.size(); ++i) { // decodificando vetor de rand
+		int pos = floor(total.size() * chromosome[i]); // pos do elemento selecionado
+		selecionados.push_back(make_pair(pos, total[pos])); // guardando o elemento e sua posicao
 
-		total.erase(total.begin() + pos);
+		total.erase(total.begin() + pos); // apagando elemento de pos
 	}
 
 	float fitness = 0, 
@@ -51,7 +51,7 @@ double SampleDecoder::decode(const std::vector< double >& chromosome) const {
 		dist;
 	int posElementoMenosDiverso = -1;
 
-	for (int i = 0; i < selecionados.size(); i++) {
+	for (int i = 0; i < selecionados.size(); i++) { // calculando diversidade total e elemento menos diverso
 		for (int j = 0; j < selecionados.size(); j++) {
 			dist = this->distancias[selecionados[i].second][selecionados[j].second];
 			fitness += dist;
@@ -63,7 +63,23 @@ double SampleDecoder::decode(const std::vector< double >& chromosome) const {
 		}
 		diversidadeAtual = 0;
 	}
+
 	fitness /= 2;
+
+	int u = -1; // substituirá o elemento menos diverso
+
+	for (const int v : total) {
+		for (const pair<int, int> s : selecionados) {
+			diversidadeAtual += this->distancias[v][s.second];
+		}
+		diversidadeAtual -= this->distancias[v][selecionados[posElementoMenosDiverso].second];
+		if (fitness < fitness + diversidadeAtual) {
+			u = v;
+			break;
+		} else {
+			diversidadeAtual = 0;
+		}
+	}
 
 	return fitness;
 }
