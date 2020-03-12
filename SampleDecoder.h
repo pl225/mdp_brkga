@@ -28,7 +28,7 @@ class SampleDecoder {
 public:
 	SampleDecoder(string caminho);
 
-	double decode(const std::vector< double >& chromosome) const;
+	double decode(std::vector< double >& chromosome) const;
 
 	int getM() const {
 		return m;

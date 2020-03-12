@@ -30,13 +30,12 @@ SampleDecoder::SampleDecoder(string caminho) {
 }
 
 // Runs in \Theta(n \log n):
-double SampleDecoder::decode(const std::vector< double >& chromosome) const {
+double SampleDecoder::decode(std::vector< double >& chromosome) const {
 
 	vector<int> total(this->getN()); // alocando vetor com n elementos
 	iota(total.begin(), total.end(), 0); // preenchendo vetor de 0 a n - 1
 
 	vector<pair<int, int>> selecionados; // criando vetor para os m selecionados: <pos, elemento>
-
 
 	for(unsigned i = 0; i < chromosome.size(); ++i) { // decodificando vetor de rand
 		int pos = floor(total.size() * chromosome[i]); // pos do elemento selecionado
@@ -79,6 +78,16 @@ double SampleDecoder::decode(const std::vector< double >& chromosome) const {
 		} else {
 			diversidadeAtual = 0;
 		}
+	}
+
+	if (u != -1) {
+		for (int i = 0; i < posElementoMenosDiverso; i++) {
+			if (selecionados[i].first < u) {
+				u--;
+			}
+		}
+		chromosome[posElementoMenosDiverso] = (double) u / (this->getN() - posElementoMenosDiverso);
+		return fitness + diversidadeAtual;
 	}
 
 	return fitness;
