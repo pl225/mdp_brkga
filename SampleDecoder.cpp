@@ -19,6 +19,7 @@ SampleDecoder::SampleDecoder(string caminho) {
 	this->distancias = vector<vector<float>>(this->n);
 	for (int i = 0; i < this->n; i++) {
 		this->distancias[i] = vector<float>(this->n);
+		this->distancias[i][i] = 0;
 	}
 
 	int i, j;
@@ -66,12 +67,14 @@ double SampleDecoder::decode(std::vector< double >& chromosome) const {
 	fitness /= 2;
 
 	int u = -1; // substituirá o elemento menos diverso
-
+	
 	for (const int v : total) {
-		for (const pair<int, int> s : selecionados) {
-			diversidadeAtual += this->distancias[v][s.second];
+		for (int i = 0; i < selecionados.size(); i++) {
+			if (i == posElementoMenosDiverso) continue;
+			diversidadeAtual = diversidadeAtual +
+				(this->distancias[selecionados[i].second][v] -
+				this->distancias[selecionados[i].second][selecionados[posElementoMenosDiverso].second]);
 		}
-		diversidadeAtual -= this->distancias[v][selecionados[posElementoMenosDiverso].second];
 		if (fitness < fitness + diversidadeAtual) {
 			u = v;
 			break;
@@ -86,7 +89,7 @@ double SampleDecoder::decode(std::vector< double >& chromosome) const {
 				u--;
 			}
 		}
-		chromosome[posElementoMenosDiverso] = (double) u / (this->getN() - posElementoMenosDiverso);
+		chromosome[posElementoMenosDiverso] = (double) u / ((double)(this->getN() - posElementoMenosDiverso));
 		return fitness + diversidadeAtual;
 	}
 
