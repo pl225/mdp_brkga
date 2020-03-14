@@ -38,8 +38,12 @@ double SampleDecoder::decode(std::vector< double >& chromosome) const {
 
 	vector<pair<int, int>> selecionados; // criando vetor para os m selecionados: <pos, elemento>
 
-	for(unsigned i = 0; i < chromosome.size(); ++i) { // decodificando vetor de rand
-		int pos = floor(total.size() * chromosome[i]); // pos do elemento selecionado
+	for(unsigned i = 0; i < chromosome.size(); i++) { // decodificando vetor de rand
+		double valor = total.size() * chromosome[i]; // pos do elemento selecionado
+		double teto = ceil(valor);
+		double piso = floor(valor);
+		int pos = teto - valor < 0.0001 && teto < total.size() ? teto : floor(valor);
+		//pos = pos < total.size() ? pos : total.size()-1;
 		selecionados.push_back(make_pair(pos, total[pos])); // guardando o elemento e sua posicao
 
 		total.erase(total.begin() + pos); // apagando elemento de pos
@@ -49,7 +53,7 @@ double SampleDecoder::decode(std::vector< double >& chromosome) const {
 		menorDiversidade = numeric_limits<float>::max(), // iniciando com maior valor possível
 		diversidadeAtual = 0,
 		dist;
-	int posElementoMenosDiverso = -1;
+	int indElementoMenosDiverso = -1;
 
 	for (int i = 0; i < selecionados.size(); i++) { // calculando diversidade total e elemento menos diverso
 		for (int j = 0; j < selecionados.size(); j++) {
@@ -59,7 +63,7 @@ double SampleDecoder::decode(std::vector< double >& chromosome) const {
 		}
 		if (diversidadeAtual < menorDiversidade) { // diversidade de i menor que todas as diversidades
 			menorDiversidade = diversidadeAtual;
-			posElementoMenosDiverso = i;
+			indElementoMenosDiverso = i;
 		}
 		diversidadeAtual = 0;
 	}
@@ -70,10 +74,12 @@ double SampleDecoder::decode(std::vector< double >& chromosome) const {
 	
 	for (const int v : total) { // procurando primeiro elemento não escolhido v mais diverso que o menor diverso encontrado
 		for (int i = 0; i < selecionados.size(); i++) {
-			if (i == posElementoMenosDiverso) continue;
+			if (i == indElementoMenosDiverso) {
+				continue;
+			}
 			diversidadeAtual = diversidadeAtual + // calculando diferença de diversidade de acordo com Martí
 				(this->distancias[selecionados[i].second][v] -
-				this->distancias[selecionados[i].second][selecionados[posElementoMenosDiverso].second]);
+				this->distancias[selecionados[i].second][selecionados[indElementoMenosDiverso].second]);
 		}
 		if (fitness < fitness + diversidadeAtual) { // averiguando se nova configuração é mais diversa
 			u = v;
@@ -84,12 +90,27 @@ double SampleDecoder::decode(std::vector< double >& chromosome) const {
 	}
 
 	if (u != -1) {
-		for (int i = 0; i < posElementoMenosDiverso; i++) { 
-			if (selecionados[i].first < u) { // calculando a posição do elemento u após remoções de elementos no fase de seleção
+
+		int elementoMaisDiverso = u;
+		for (int i = 0; i < indElementoMenosDiverso; i++) { 
+			if (selecionados[i].second < elementoMaisDiverso) { // calculando a posição do elemento u após remoções de elementos no fase de seleção
 				u--;
 			}
+		} 
+
+		int qtdElementosAposRemocao = this->getN() - indElementoMenosDiverso; // calculando o valor do alelo do novo elemento
+		chromosome[indElementoMenosDiverso] = (double) u / qtdElementosAposRemocao;
+		int elementoMenosDiverso = selecionados[indElementoMenosDiverso].second;
+		
+		for (int a = indElementoMenosDiverso + 1; a < this->getM(); a++) {
+			int elemento = selecionados[a].second;
+			if (elemento > elementoMenosDiverso && elemento < elementoMaisDiverso) {
+				chromosome[a] = (double) (selecionados[a].first + 1) / (this->getN() - a);
+			} else if (elemento < elementoMenosDiverso && elemento > elementoMaisDiverso) {
+				chromosome[a] = (double) (selecionados[a].first - 1) / (this->getN() - a);
+			}
 		}
-		chromosome[posElementoMenosDiverso] = (double) u / ((double)(this->getN() - posElementoMenosDiverso));
+
 		return fitness + diversidadeAtual;
 	}
 
