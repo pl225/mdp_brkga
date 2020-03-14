@@ -14,7 +14,7 @@
 SampleDecoder::SampleDecoder(string caminho) {
 	ifstream instancia(caminho);
 
-	instancia >> this->n >> this->m >> this->custo;
+	instancia >> this->n >> this->m;
 
 	this->distancias = vector<vector<float>>(this->n);
 	for (int i = 0; i < this->n; i++) {

@@ -359,14 +359,14 @@ int64_t BRKGA<Decoder, RNG>::execute(const unsigned interval_exchange, const uns
 	do {
 		this->evolve();	// evolve the population for one generation
 
-		if (tempoAchado == -1 && this->getBestFitness() >= this->refDecoder.getCusto()) {
+		if (tempoAchado == -1) {
 			tempoAchado = chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - start).count();
 		}
 		
 		if((++generation) % interval_exchange == 0) {
 			this->exchangeElite(n_individuals_exchange);	// exchange top individuals
 		}
-	} while (chrono::duration_cast<chrono::seconds>(chrono::steady_clock::now() - start).count() < 60);
+	} while (chrono::duration_cast<chrono::seconds>(chrono::steady_clock::now() - start).count() < 600);
 
 	return tempoAchado;
 }

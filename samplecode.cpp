@@ -25,14 +25,14 @@ int main(int argc, char* argv[]) {
 	const long unsigned rngSeed = time(NULL);	// seed to the random number generator
 	MTRand rng(rngSeed);				// initialize the random number generator
 
-	ofstream resultados ("resultados_2_horas.txt", ios::out | ios::app);
+	ofstream resultados ("resultados_10_min.txt", ios::out | ios::app);
 	
 	for (const string instancia: instancias) {
 
 		cout << "Executando instância: " << instancia << endl;
 
 		SampleDecoder decoder(instancia); // initialize the decoder
-		const unsigned n = decoder.getM();		// size of chromosomes
+		const unsigned n = decoder.getN();		// size of chromosomes
 		
 		// initialize the BRKGA-based heuristic
 		BRKGA< SampleDecoder, MTRand > algorithm(n, p, pe, pm, rhoe, decoder, rng, K, MAXT);
@@ -41,7 +41,6 @@ int main(int argc, char* argv[]) {
 
 		int64_t tempoAchado = algorithm.execute(X_INTVL, X_NUMBER);
 
-		resultados << "#######\t" << algorithm.getBestFitness() << '\t' << tempoAchado << "#######\t" << endl;
 	}
 
 	resultados.close();
@@ -50,7 +49,7 @@ int main(int argc, char* argv[]) {
 }
 
 std::vector<string> lerInstancias () {
-	string path = "2_horas";
+	string path = "10_min/";
 	DIR *dir = opendir(path.c_str());
 	struct dirent *entry;
 	std::vector<string> instancias;
@@ -62,7 +61,7 @@ std::vector<string> lerInstancias () {
 		while ((entry = readdir(dir)) != NULL) {
 			string filename = entry->d_name;
 			if (filename.size() > 2) {
-				instancias.push_back(path + '/' + entry->d_name);
+				instancias.push_back(path + entry->d_name);
 			}
 		}
 	}

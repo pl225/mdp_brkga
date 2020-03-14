@@ -38,10 +38,6 @@ public:
 		return n;
 	}
 
-	double getCusto() const {
-		return custo;
-	}
-
 	float getDistancia(int i, int j) const {
 		return this->distancias[i][j];
 	}
@@ -49,7 +45,6 @@ public:
 private:
 	int n;
 	int m;
-	double custo;
 	vector<vector<float>> distancias;
 };
 
