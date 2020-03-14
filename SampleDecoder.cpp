@@ -68,6 +68,34 @@ double SampleDecoder::decode(std::vector< double >& chromosome) const {
 	}
 
 	fitness /= 2; // removendo repetição de diversidades.
+	int indElementoMaisDiverso = -1;
+
+	for (int i = this->getM(); i < this->getN(); i++) {
+		int v = ranking[i].second;
+		for (int i = 0; i < selecionados.size(); i++) {
+			if (i == indElementoMenosDiverso) {
+				continue;
+			}
+			diversidadeAtual = diversidadeAtual + // calculando diferença de diversidade de acordo com Martí
+				(this->distancias[selecionados[i]][v] -
+				this->distancias[selecionados[i]][selecionados[indElementoMenosDiverso]]);
+		}
+
+		if (fitness < fitness + diversidadeAtual) { // averiguando se nova configuração é mais diversa
+			indElementoMaisDiverso = i;
+			break;
+		} else {
+			diversidadeAtual = 0;
+		}
+	}
+
+	if (indElementoMaisDiverso != -1) {
+
+		chromosome[ranking[indElementoMenosDiverso].second] = ranking[indElementoMaisDiverso].first;
+		chromosome[ranking[indElementoMaisDiverso].second] = ranking[indElementoMenosDiverso].first;
+
+		return fitness + diversidadeAtual;
+	}
 
 	return fitness;
 }
