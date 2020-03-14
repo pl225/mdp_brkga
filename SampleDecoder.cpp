@@ -46,7 +46,7 @@ double SampleDecoder::decode(std::vector< double >& chromosome) const {
 	}
 
 	float fitness = 0, 
-		menorDiversidade = numeric_limits<float>::max(), 
+		menorDiversidade = numeric_limits<float>::max(), // iniciando com maior valor possível
 		diversidadeAtual = 0,
 		dist;
 	int posElementoMenosDiverso = -1;
@@ -54,28 +54,28 @@ double SampleDecoder::decode(std::vector< double >& chromosome) const {
 	for (int i = 0; i < selecionados.size(); i++) { // calculando diversidade total e elemento menos diverso
 		for (int j = 0; j < selecionados.size(); j++) {
 			dist = this->distancias[selecionados[i].second][selecionados[j].second];
-			fitness += dist;
-			diversidadeAtual += dist;
+			fitness += dist; // diversidade total
+			diversidadeAtual += dist; // diversidade de i
 		}
-		if (diversidadeAtual < menorDiversidade) {
+		if (diversidadeAtual < menorDiversidade) { // diversidade de i menor que todas as diversidades
 			menorDiversidade = diversidadeAtual;
 			posElementoMenosDiverso = i;
 		}
 		diversidadeAtual = 0;
 	}
 
-	fitness /= 2;
+	fitness /= 2; // removendo repetição de diversidades.
 
 	int u = -1; // substituirá o elemento menos diverso
 	
-	for (const int v : total) {
+	for (const int v : total) { // procurando primeiro elemento não escolhido v mais diverso que o menor diverso encontrado
 		for (int i = 0; i < selecionados.size(); i++) {
 			if (i == posElementoMenosDiverso) continue;
-			diversidadeAtual = diversidadeAtual +
+			diversidadeAtual = diversidadeAtual + // calculando diferença de diversidade de acordo com Martí
 				(this->distancias[selecionados[i].second][v] -
 				this->distancias[selecionados[i].second][selecionados[posElementoMenosDiverso].second]);
 		}
-		if (fitness < fitness + diversidadeAtual) {
+		if (fitness < fitness + diversidadeAtual) { // averiguando se nova configuração é mais diversa
 			u = v;
 			break;
 		} else {
@@ -84,8 +84,8 @@ double SampleDecoder::decode(std::vector< double >& chromosome) const {
 	}
 
 	if (u != -1) {
-		for (int i = 0; i < posElementoMenosDiverso; i++) {
-			if (selecionados[i].first < u) {
+		for (int i = 0; i < posElementoMenosDiverso; i++) { 
+			if (selecionados[i].first < u) { // calculando a posição do elemento u após remoções de elementos no fase de seleção
 				u--;
 			}
 		}
